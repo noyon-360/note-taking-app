@@ -2,6 +2,7 @@ from beanie import init_beanie
 from pymongo import AsyncMongoClient
 
 from app.core.config import settings
+from app.modules.note.models import Note
 from app.modules.user.models import User
 
 
@@ -14,7 +15,7 @@ class MongoDB:
         await self.client.admin.command("ping")
 
         await init_beanie(
-            database=self.client[settings.DATABASE_NAME], document_models=[User]
+            database=self.client[settings.DATABASE_NAME], document_models=[User, Note]
         )
 
         print(f"Connected to MongoDB: {settings.DATABASE_NAME}")

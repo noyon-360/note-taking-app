@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import jwt
 from beanie import PydanticObjectId
 from fastapi import Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -31,8 +32,13 @@ async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
 ) -> User:
     if credentials is None:
-        raise AppError("Authorization credentials are missing")
-    payload = decode_access_token(credentials.credentials)
+        raise AppError(
+            "Authorization credentials are missing", status.HTTP_401_UNAUTHORIZED
+        )
+    try:
+        payload = decode_access_token(credentials.credentials)
+    except jwt.InvalidTokenError:
+        raise AppError("Invalid token", status.HTTP_401_UNAUTHORIZED)
     user = await User.get(PydanticObjectId(payload["sub"]))
     if user is None:
         raise AppError("User not found", status_code=status.HTTP_401_UNAUTHORIZED)
