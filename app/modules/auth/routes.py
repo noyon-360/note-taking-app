@@ -27,36 +27,36 @@ async def login(data: LoginSchema, auth_service: AuthServiceDep):
     )
 
 
-@auth_routes.post("/verify-email")
-async def verify_email():
-    return {"message": "Email verified successfully"}
+# @auth_routes.post("/verify-email")
+# async def verify_email():
+#     return {"message": "Email verified successfully"}
 
 
-@auth_routes.post("/resend-verification")
-async def resend_verification():
-    return {"message": "Verification email sent successfully"}
+# @auth_routes.post("/resend-verification")
+# async def resend_verification():
+#     return {"message": "Verification email sent successfully"}
 
 
-@auth_routes.post("/forgot-password")
-async def forgot_password():
-    return {"message": "Password reset email sent successfully"}
+# @auth_routes.post("/forgot-password")
+# async def forgot_password():
+#     return {"message": "Password reset email sent successfully"}
 
 
-@auth_routes.post("/reset-password")
-async def reset_password():
-    return {"message": "Password reset successfully"}
+# @auth_routes.post("/reset-password")
+# async def reset_password():
+#     return {"message": "Password reset successfully"}
 
 
-@auth_routes.post("/change-password")
-async def change_password():
-    return {"message": "Password changed successfully"}
+# @auth_routes.post("/change-password")
+# async def change_password():
+#     return {"message": "Password changed successfully"}
 
 
-@auth_routes.post("/refresh-token")
-async def refresh_token():
-    return {"message": "Token refreshed successfully"}
+# @auth_routes.post("/refresh-token")
+# async def refresh_token():
+#     return {"message": "Token refreshed successfully"}
 
 
-@auth_routes.post("/logout")
-async def logout():
-    return {"message": "User logged out successfully"}
+# @auth_routes.post("/logout")
+# async def logout():
+#     return {"message": "User logged out successfully"}
