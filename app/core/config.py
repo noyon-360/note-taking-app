@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     DATABASE_NAME: str
 
+    # Auth
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str
+    JWT_EXPIRE_MINUTES: int
+
 
 @lru_cache
 def get_settings() -> Settings:

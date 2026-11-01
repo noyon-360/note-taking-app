@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
+from app.common.exception_handlers import register_exception_handlers
 from app.core.config import settings
 from app.core.database import mongodb
 from app.routes.routes import app_routes
@@ -17,7 +18,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Node Taking App", lifespan=lifespan)
 
-app.include_router(app_routes)
+register_exception_handlers(app)
+
+app.include_router(app_routes, prefix=settings.API_V1_PREFIX)
 
 if __name__ == "__main__":
     uvicorn.run(app=app, host="127.0.0.1", port=settings.PORT)
