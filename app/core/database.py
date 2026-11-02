@@ -11,7 +11,7 @@ class MongoDB:
         self.client: AsyncMongoClient | None = None
 
     async def connect(self):
-        self.client = AsyncMongoClient(settings.DATABASE_URL)
+        self.client = AsyncMongoClient(settings.DATABASE_URL, tz_aware=True)
         await self.client.admin.command("ping")
 
         await init_beanie(
