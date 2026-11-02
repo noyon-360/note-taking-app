@@ -5,6 +5,7 @@ from beanie import PydanticObjectId
 from fastapi import Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.common.enum import UserRole
 from app.core.exceptions import AppError
 from app.core.security import decode_access_token
 from app.modules.auth.service import AuthService
@@ -46,3 +47,15 @@ async def get_current_user(
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+async def require_admin(current_user: CurrentUserDep):
+    if current_user.role != UserRole.ADMIN:
+        raise AppError(
+            "Admin access required",
+            status.HTTP_403_FORBIDDEN,
+        )
+    return current_user
+
+
+AdminUserDep = Annotated[User, Depends(require_admin)]

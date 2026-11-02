@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 
-from app.core.response import success_response
+from app.common.pagination import PaginationDep
+from app.core.response import build_metadata, success_response
 from app.modules.auth.dependencies import CurrentUserDep
 from app.modules.note.dependencies import NoteServiceDep
 from app.modules.note.schemas import NoteCreateSchema
@@ -21,13 +22,19 @@ async def create_note(
 
 
 @note_routes.get("")
-async def get_notes():
-    return {"message": "List of notes"}
-
-
-@note_routes.get("/all")
-async def get_all_notes():
-    return {"message": "List of all notes"}
+async def get_notes(
+    pageination: PaginationDep,
+    current_user: CurrentUserDep,
+    note_service: NoteServiceDep,
+):
+    notes, total = await note_service.list_notes_for_owner(
+        current_user.id, pageination.skip, pageination.limit
+    )
+    return success_response(
+        data=notes,
+        message="Notes fetched successfully",
+        metadata=build_metadata(pageination.page, pageination.limit, total),
+    )
 
 
 @note_routes.get("/{note_id}")
