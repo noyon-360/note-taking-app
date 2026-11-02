@@ -19,4 +19,5 @@ class User(Document):
         name = "users"
         indexes: ClassVar[list[IndexModel]] = [
             IndexModel([("email", ASCENDING)], unique=True),
+            IndexModel([("interests", ASCENDING)]),
         ]

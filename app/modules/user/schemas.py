@@ -20,14 +20,16 @@ class UserCreateSchema(APIModel):
 class UserUpdateSchema(APIModel):
     name: Name | None = None
     email: EmailStr | None = None
-    password: Password | None = None
-    role: UserRole | None = None
     interests: list[str] | None = None
 
     @field_validator("email")
     @classmethod
-    def lowercase_email(cls, v: str) -> str:
-        return v.strip().lower()
+    def lowercase_email(cls, v: str | None) -> str | None:
+        return v.strip().lower() if v is not None else v
+
+
+class UserRoleUpdateSchema(APIModel):
+    role: UserRole
 
 
 class UserResponse(APIModel):
