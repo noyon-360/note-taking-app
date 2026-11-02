@@ -1,10 +1,11 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter, status
 
 from app.common.pagination import PaginationDep
 from app.core.response import build_metadata, success_response
 from app.modules.auth.dependencies import CurrentUserDep
 from app.modules.note.dependencies import NoteServiceDep
-from app.modules.note.schemas import NoteCreateSchema
+from app.modules.note.schemas import NoteCreateSchema, NoteUpdateSchema
 
 note_routes = APIRouter(prefix="/notes", tags=["Notes"])
 
@@ -38,15 +39,40 @@ async def get_notes(
 
 
 @note_routes.get("/{note_id}")
-async def get_note(note_id: str):
-    return {"message": f"Details of note {note_id}"}
+async def get_note(
+    note_id: PydanticObjectId,
+    current_user: CurrentUserDep,
+    note_service: NoteServiceDep,
+):
+    note = await note_service.get_note_by_id(note_id=note_id, user=current_user)
+    return success_response(
+        data=note, message="Note fetched successfully", status_code=status.HTTP_200_OK
+    )
 
 
 @note_routes.patch("/{note_id}")
-async def update_note(note_id: str):
-    return {"message": f"Note {note_id} updated successfully"}
+async def update_note(
+    note_id: PydanticObjectId,
+    current_user: CurrentUserDep,
+    note_service: NoteServiceDep,
+    data: NoteUpdateSchema,
+):
+    note = await note_service.update_note(
+        note_id=note_id, user=current_user, note_update=data
+    )
+
+    return success_response(
+        message="Note update successfully", data=note, status_code=status.HTTP_200_OK
+    )
 
 
 @note_routes.delete("/{note_id}")
-async def delete_note(note_id: str):
-    return {"message": f"Note {note_id} deleted successfully"}
+async def delete_note(
+    note_id: PydanticObjectId,
+    note_service: NoteServiceDep,
+    current_user: CurrentUserDep,
+):
+    await note_service.delete_note(note_id=note_id, owner=current_user)
+    return success_response(
+        message="Note deleted successfully", status_code=status.HTTP_200_OK
+    )

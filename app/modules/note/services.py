@@ -1,8 +1,17 @@
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, UpdateResponse
+from beanie.operators import Set
+from fastapi import status
 
+from app.common.enum import UserRole
+from app.common.utils import utc_now
+from app.core.exceptions import AppError
 from app.modules.note.models import Note
 from app.modules.note.schemas import NoteCreateSchema, NoteResponse, NoteUpdateSchema
 from app.modules.user.models import User
+
+
+def note_not_found() -> AppError:
+    return AppError("Note not found", status.HTTP_404_NOT_FOUND)
 
 
 class NoteService:
@@ -27,19 +36,48 @@ class NoteService:
 
         return [NoteResponse.model_validate(note) for note in notes], total
 
-    async def get_note_by_id(self, note_id: str) -> Note:
-        return await self.note_repository.get_note_by_id(note_id)
+    async def get_note_by_id(
+        self, note_id: PydanticObjectId, user: User
+    ) -> NoteResponse:
+        if user.role == UserRole.ADMIN:
+            note = await Note.get(note_id)
+        else:
+            note = await Note.find_one(Note.id == note_id, Note.owner_id == user.id)
 
-    async def update_note(self, note_id: str, note_update: NoteUpdateSchema) -> Note:
-        return await self.note_repository.update_note(note_id, note_update)
+        if note is None:
+            raise note_not_found()
+        return NoteResponse.model_validate(note)
 
-    async def delete_note(self, note_id: str) -> None:
-        await self.note_repository.delete_note(note_id)
+    async def update_note(
+        self, note_id: PydanticObjectId, user: User, note_update: NoteUpdateSchema
+    ) -> NoteResponse:
+        fields = note_update.model_dump(exclude_none=True)
 
-    async def list_all_notes(self, skip: int, limit: int) -> tuple[list[NoteResponse], int]:
+        query = Note.find_one(Note.id == note_id, Note.owner_id == user.id)
+
+        if fields:
+            note = await query.update(
+                Set({**fields, "updated_at": utc_now()}),
+                response_type=UpdateResponse.NEW_DOCUMENT,
+            )
+        else:
+            note = await query
+
+        if note is None:
+            raise note_not_found()
+        return NoteResponse.model_validate(note)
+
+    async def delete_note(self, note_id: PydanticObjectId, owner: User) -> None:
+        result = await Note.find_one(
+            Note.id == note_id, Note.owner_id == owner.id
+        ).delete()
+        if result.deleted_count == 0:
+            raise note_not_found()
+
+    async def list_all_notes(
+        self, skip: int, limit: int
+    ) -> tuple[list[NoteResponse], int]:
         notes = await Note.find_all().sort("-_id").skip(skip).limit(limit).to_list()
         total = await Note.get_pymongo_collection().estimated_document_count()
-
-
 
         return [NoteResponse.model_validate(note) for note in notes], total

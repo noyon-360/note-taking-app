@@ -18,5 +18,5 @@ class Note(Document):
     class Settings:
         name = "notes"
         indexes: ClassVar[list[IndexModel]] = [
-            IndexModel([("owner_id", ASCENDING), ("created_at", DESCENDING)]),
+            IndexModel([("owner_id", ASCENDING), ("_id", DESCENDING)]),
         ]
