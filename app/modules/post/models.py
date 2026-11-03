@@ -16,7 +16,7 @@ class Post(Document):
 
     class Settings:
         name = "posts"
-        indexs: ClassVar[list[IndexModel]] = [
+        indexes: ClassVar[list[IndexModel]] = [
             IndexModel(
                 [("author_id", ASCENDING), ("_id", DESCENDING)],
             )
