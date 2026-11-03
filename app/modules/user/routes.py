@@ -1,8 +1,14 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter
 
-from app.core.response import success_response
+from app.common.pagination import PaginationDep
+from app.core.response import build_metadata, success_response
 from app.modules.auth.dependencies import CurrentUserDep, UserServiceDep
-from app.modules.user.schemas import UserResponse, UserUpdateSchema
+from app.modules.user.schemas import (
+    UserPostsResponse,
+    UserResponse,
+    UserUpdateSchema,
+)
 
 user_routes = APIRouter(prefix="/users", tags=["Users"])
 
@@ -24,3 +30,21 @@ async def update(
 async def delete_my_account(user_service: UserServiceDep, current_user: CurrentUserDep):
     await user_service.delete_own_account(user=current_user)
     return success_response(message="Account deleted successfully")
+
+
+@user_routes.get("/{user_id}/posts")
+async def user_posts(
+    user_id: PydanticObjectId,
+    pagination: PaginationDep,
+    user_service: UserServiceDep,
+    current_user: CurrentUserDep,
+):
+    result = await user_service.get_user_posts(
+        user_id=user_id, skip=pagination.skip, limit=pagination.limit
+    )
+    return success_response(
+        data=UserPostsResponse.model_validate(result),
+        metadata=build_metadata(
+            page=pagination.page, limit=pagination.limit, total=result["total"]
+        ),
+    )
