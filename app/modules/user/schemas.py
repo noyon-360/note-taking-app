@@ -1,3 +1,4 @@
+from beanie import PydanticObjectId
 from pydantic import EmailStr, field_validator
 
 from app.common.enum import UserRole
@@ -32,18 +33,8 @@ class UserRoleUpdateSchema(APIModel):
 
 
 class UserResponse(APIModel):
-    id: str
+    id: PydanticObjectId
     name: Name
     email: EmailStr
     role: UserRole
     interests: list[str]
-
-    @classmethod
-    def from_user(cls, user) -> "UserResponse":
-        return cls(
-            id=str(user.id),
-            name=user.name,
-            email=user.email,
-            role=user.role,
-            interests=user.interests,
-        )

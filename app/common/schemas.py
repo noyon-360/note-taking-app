@@ -7,7 +7,11 @@ from pydantic.alias_generators import to_camel
 class APIModel(BaseModel):
     """Base for every request/response schema: camelCase JSON, snake_case Python."""
 
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
 
 
 Name = Annotated[

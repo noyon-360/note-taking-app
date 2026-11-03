@@ -30,13 +30,13 @@ class UserService:
     async def list_users(self, skip: int, limit: int) -> tuple[list[UserResponse], int]:
         users = await User.find_all().sort("_id").skip(skip).limit(limit).to_list()
         total = await User.get_pymongo_collection().estimated_document_count()
-        return [UserResponse.from_user(user) for user in users], total
+        return [UserResponse.model_validate(user) for user in users], total
 
     async def get_user_by_id(self, user_id: PydanticObjectId) -> UserResponse:
         user = await User.get(user_id)
         if user is None:
             raise AppError("User not found", status.HTTP_404_NOT_FOUND)
-        return UserResponse.from_user(user)
+        return UserResponse.model_validate(user)
 
     async def update_user(
         self, user_id: PydanticObjectId, user_data: UserUpdateSchema
@@ -57,7 +57,7 @@ class UserService:
 
         if user is None:
             raise AppError("User not found", status_code=status.HTTP_404_NOT_FOUND)
-        return UserResponse.from_user(user)
+        return UserResponse.model_validate(user)
 
     async def update_user_role(
         self,
@@ -77,7 +77,7 @@ class UserService:
             raise AppError(
                 message="User not found", status_code=status.HTTP_404_NOT_FOUND
             )
-        return UserResponse.from_user(user)
+        return UserResponse.model_validate(user)
 
     async def delete_user(
         self,

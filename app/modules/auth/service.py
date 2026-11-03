@@ -14,7 +14,7 @@ class AuthService:
 
     def _build_auth_response(self, user) -> AuthResponse:
         token = create_access_token(str(user.id), user.role.value)
-        return AuthResponse(access_token=token, user=UserResponse.from_user(user))
+        return AuthResponse(access_token=token, user=UserResponse.model_validate(user))
 
     async def register(self, data: RegisterSchema):
         pass_hash = await hash_pass(data.password)

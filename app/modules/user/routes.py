@@ -9,7 +9,7 @@ user_routes = APIRouter(prefix="/users", tags=["Users"])
 
 @user_routes.get("")
 async def me(current_user: CurrentUserDep):
-    return success_response(data=UserResponse.from_user(current_user))
+    return success_response(data=UserResponse.model_validate(current_user))
 
 
 @user_routes.patch("")

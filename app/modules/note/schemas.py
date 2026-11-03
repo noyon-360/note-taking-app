@@ -31,14 +31,3 @@ class NoteResponse(APIModel):
     owner_id: PydanticObjectId
     created_at: datetime
     updated_at: datetime
-
-    @classmethod
-    def from_note(cls, note) -> "NoteResponse":
-        return cls(
-            id=note.id,
-            title=note.title,
-            content=note.content,
-            owner_id=note.owner_id,
-            created_at=note.created_at,
-            updated_at=note.updated_at,
-        )
