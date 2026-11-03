@@ -40,7 +40,7 @@ class UserService:
 
     async def update_user(
         self, user_id: PydanticObjectId, user_data: UserUpdateSchema
-    ) -> User:
+    ) -> UserResponse:
         fields = user_data.model_dump(exclude_none=True)
 
         if not fields:

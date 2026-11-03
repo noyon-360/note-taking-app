@@ -1,20 +1,19 @@
-from pydantic import EmailStr, Field, field_validator
+from pydantic import EmailStr, field_validator
 
 from app.common.enum import UserRole
-from app.common.schemas import APIModel, Name, Password
+from app.common.schemas import APIModel, Name
 
+# class UserCreateSchema(APIModel):
+#     name: Name
+#     email: EmailStr
+#     password: Password
+#     role: UserRole
+#     interests: list[str] = Field(default_factory=list)
 
-class UserCreateSchema(APIModel):
-    name: Name
-    email: EmailStr
-    password: Password
-    role: UserRole
-    interests: list[str] = Field(default_factory=list)
-
-    @field_validator("email")
-    @classmethod
-    def lowercase_email(cls, v: str) -> str:
-        return v.strip().lower()
+#     @field_validator("email")
+#     @classmethod
+#     def lowercase_email(cls, v: str) -> str:
+#         return v.strip().lower()
 
 
 class UserUpdateSchema(APIModel):
