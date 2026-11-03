@@ -3,6 +3,7 @@ from pydantic import EmailStr, field_validator
 
 from app.common.enum import UserRole
 from app.common.schemas import APIModel, Name
+from app.modules.post.schemas import PostResponse
 
 # class UserCreateSchema(APIModel):
 #     name: Name
@@ -38,3 +39,19 @@ class UserResponse(APIModel):
     email: EmailStr
     role: UserRole
     interests: list[str]
+
+
+class UserSummary(APIModel):
+    id: PydanticObjectId
+    name: str
+
+
+class InterestGroupResponse(APIModel):
+    interest: str
+    user_count: int
+    users: list[UserSummary]
+
+
+class UserPostsResponse(APIModel):
+    user: UserSummary
+    posts: list[PostResponse]
