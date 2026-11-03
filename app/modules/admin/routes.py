@@ -1,5 +1,7 @@
+from typing import Annotated
+
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.common.pagination import PaginationDep
 from app.core.response import build_metadata, success_response
@@ -11,7 +13,7 @@ from app.modules.auth.dependencies import (
 )
 from app.modules.auth.schemas import RegisterSchema
 from app.modules.note.dependencies import NoteServiceDep
-from app.modules.user.schemas import UserRoleUpdateSchema
+from app.modules.user.schemas import InterestGroupResponse, UserRoleUpdateSchema
 
 admin_routes = APIRouter(
     prefix="/admin", tags=["Admin"], dependencies=[Depends(require_admin)]
@@ -87,3 +89,25 @@ async def delete_user(
 ):
     await user_service.delete_user(user_id=user_id, acting_admin_id=admin.id)
     return success_response(message="User deleted successfully")
+
+
+@admin_routes.get("/grouped_by_interests")
+async def group_by_interests(
+    pagination: PaginationDep,
+    user_service: UserServiceDep,
+    users_per_group: Annotated[int, Query(alias="usersPerGroup", ge=1, le=200)] = 50,
+    interests: Annotated[list[str] | None, Query(max_length=20)] = None,
+):
+    groups, total = await user_service.get_interest_groups(
+        interests=interests,
+        skip=pagination.skip,
+        limit=pagination.limit,
+        users_per_group=users_per_group,
+    )
+
+    return success_response(
+        data=[InterestGroupResponse.model_validate(group) for group in groups],
+        metadata=build_metadata(
+            page=pagination.page, limit=pagination.limit, total=total
+        ),
+    )

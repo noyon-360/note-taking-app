@@ -13,12 +13,9 @@ venv/
 .venv/
 
 # Secrets / env (keep a .env.example committed instead)
-.env
-.env.*
 !.env.example
 
 # Editor / OS
-.vscode/
 .idea/
 .DS_Store
 
@@ -27,3 +24,5 @@ venv/
 
 .claude/
 NOTE.md
+config.bat
+node_modules

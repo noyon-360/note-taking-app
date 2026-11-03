@@ -7,6 +7,7 @@ from app.common.enum import UserRole
 from app.core.exceptions import AppError
 from app.modules.note.models import Note
 from app.modules.user.models import User
+from app.modules.user.pipelines import interest_group_pipeline, user_post_pipeline
 from app.modules.user.schemas import UserResponse, UserUpdateSchema
 
 
@@ -107,3 +108,33 @@ class UserService:
 
         await Note.find(Note.owner_id == user_id).delete()
         await user.delete()
+
+    async def get_interest_groups(
+        self, interests: list[str] | None, skip: int, limit: int, users_per_group: int
+    ) -> tuple[list[dict], int]:
+        normalized = [interest.strip().lower() for interest in interests or []]
+        pipeline = interest_group_pipeline(
+            interests=normalized,
+            skip=skip,
+            limit=limit,
+            users_per_group=users_per_group,
+        )
+
+        result = await User.aggregate(pipeline, allowDiskUse=True).to_list()
+
+        facet = result[0]
+        total = facet["metadata"][0]["total"] if facet["metadata"] else 0
+        return facet["data"], total
+
+    async def get_user_posts(
+        self, user_id: PydanticObjectId, skip: int, limit: int
+    ) -> dict:
+        pipeline = user_post_pipeline(user_id=user_id, skip=skip, limit=limit)
+
+        result = await User.aggregate(pipeline).to_list()
+
+        if not result:
+            raise AppError(
+                message="User not found", status_code=status.HTTP_404_NOT_FOUND
+            )
+        return result[0]
