@@ -15,7 +15,7 @@ class PostService:
         return PostResponse.model_validate(post)
 
     async def list_posts(self, skip: int, limit: int) -> tuple[list[PostResponse], int]:
-        posts = await Post.find_all().sort("_id").skip(skip).limit(limit).to_list()
+        posts = await Post.find_all().sort("-_id").skip(skip).limit(limit).to_list()
         total = await Post.get_pymongo_collection().estimated_document_count()
 
         return [PostResponse.model_validate(post) for post in posts], total

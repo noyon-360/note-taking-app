@@ -36,7 +36,7 @@ async def list_posts(pagination: PaginationDep, post_service: PostServiceDep):
     )
 
 
-@post_routes.get("{post_id}")
+@post_routes.get("/{post_id}")
 async def get_post(post_id: PydanticObjectId, post_service: PostServiceDep):
     post = await post_service.get_post(post_id=post_id)
     return success_response(message="Post fetch successfully", data=post)
